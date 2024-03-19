@@ -1,0 +1,251 @@
+//Practical 2 Threads
+//
+// Task: Modify code below to ensure action-functions run atomically.
+// 
+//     Do not modify the order in which action-functions are called.
+//     Do not add or modify action-function calls.
+
+#include <pthread.h>
+
+//
+// I want to preface that the mutex locks around each action are not necessary
+// In your lecture you state that if the global variables are used in multiple threads,
+// we should protect them, which is why the locks are there. Technically, since
+// the actions in all the threads except the last two are only writing or editing the variables,
+// there will never be a lock.
+//
+
+//mutex variables
+pthread_mutex_t gA_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t gR_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t gG_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t gU_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t gN_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t gHK_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t gE_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t gQ_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+//conditional variables
+pthread_cond_t gA_cond = PTHREAD_COND_INITIALIZER;
+pthread_cond_t gR_cond = PTHREAD_COND_INITIALIZER;
+
+void *Thread1(void *threadid) {
+  printf( "Thread1 Running\n" );
+
+  pthread_mutex_lock(&gG_mutex);
+  action11();
+  pthread_mutex_unlock(&gG_mutex);
+
+  pthread_mutex_lock(&gU_mutex);
+  action12();
+  pthread_mutex_unlock(&gU_mutex);
+
+  action13();
+
+  pthread_mutex_lock(&gG_mutex);
+  action14();
+  pthread_mutex_unlock(&gG_mutex);
+
+  pthread_mutex_lock(&gN_mutex);
+  action15();
+  pthread_mutex_unlock(&gN_mutex);
+
+  pthread_mutex_lock(&gA_mutex);
+  action16();
+  pthread_cond_signal(&gA_cond);
+  pthread_mutex_unlock(&gA_mutex);
+  
+  pthread_mutex_lock(&gA_mutex);
+  DISPLAY("Waiting for %s\n","(gA == 10)");
+  while (!((gA == 10))) {
+    pthread_cond_wait(&gA_cond, &gA_mutex);
+  };
+  puff();
+  action17();
+  pthread_cond_signal(&gA_cond);
+  pthread_mutex_unlock(&gA_mutex);
+
+
+  pthread_exit(NULL);
+}
+
+
+void *Thread2(void *threadid) {
+  printf( "Thread2 Running\n" );
+
+  pthread_mutex_lock(&gHK_mutex);
+  action21();
+  pthread_mutex_unlock(&gHK_mutex);
+
+  pthread_mutex_lock(&gN_mutex);
+  action22();
+  pthread_mutex_unlock(&gN_mutex);
+
+  pthread_mutex_lock(&gE_mutex);
+  action23();
+  pthread_mutex_unlock(&gE_mutex);
+
+  pthread_mutex_lock(&gQ_mutex);
+  action24();
+  pthread_mutex_unlock(&gQ_mutex);
+
+  pthread_mutex_lock(&gG_mutex);
+  action25();
+  pthread_mutex_unlock(&gG_mutex);
+
+  action26();
+
+  pthread_mutex_lock(&gA_mutex);
+  action27();
+  pthread_cond_signal(&gA_cond);
+  pthread_mutex_unlock(&gA_mutex);
+
+  pthread_mutex_lock(&gA_mutex);
+  DISPLAY("Waiting for %s\n","(gA == 7)");
+  while (gA != 7) {
+    pthread_cond_wait(&gA_cond, &gA_mutex);
+  }
+  puff();
+  action28();
+  pthread_cond_signal(&gA_cond);
+  pthread_mutex_unlock(&gA_mutex);
+
+
+  pthread_exit(NULL);
+}
+
+
+void *Thread3(void *threadid) {
+  printf( "Thread3 Running\n" );
+
+  pthread_mutex_lock(&gHK_mutex);
+  action31();
+  pthread_mutex_unlock(&gHK_mutex);
+
+  pthread_mutex_lock(&gN_mutex);
+  action32();
+  pthread_mutex_unlock(&gN_mutex);
+
+  pthread_mutex_lock(&gU_mutex);
+  action33();
+  pthread_mutex_unlock(&gU_mutex);
+
+  action34();
+
+  pthread_mutex_lock(&gE_mutex);
+  action35();
+  pthread_mutex_unlock(&gE_mutex);
+
+  pthread_mutex_lock(&gN_mutex);
+  action36();
+  pthread_mutex_unlock(&gN_mutex);
+
+  pthread_mutex_lock(&gR_mutex);
+  action37();
+  pthread_cond_signal(&gR_cond);
+  pthread_mutex_unlock(&gR_mutex);
+  
+  pthread_mutex_lock(&gR_mutex);
+  DISPLAY("Waiting for %s\n","(gR < 1)");
+  while (gR >= 1) {
+    pthread_cond_wait(&gR_cond, &gR_mutex);
+  }
+  puff();
+  action38();
+  pthread_cond_signal(&gR_cond);
+  pthread_mutex_unlock(&gR_mutex);
+
+
+  pthread_exit(NULL);
+}
+
+
+void *Thread4(void *threadid) {
+  printf( "Thread4 Running\n" );
+
+  pthread_mutex_lock(&gN_mutex);
+  action41();
+  pthread_mutex_unlock(&gN_mutex);
+
+  action42();
+
+  pthread_mutex_lock(&gU_mutex);
+  action43();
+  pthread_mutex_unlock(&gU_mutex);
+
+  pthread_mutex_lock(&gU_mutex);
+  action44();
+  pthread_mutex_unlock(&gU_mutex);
+
+  pthread_mutex_lock(&gE_mutex);
+  action45();
+  pthread_mutex_unlock(&gE_mutex);
+
+  pthread_mutex_lock(&gHK_mutex);
+  action46();
+  pthread_mutex_unlock(&gHK_mutex);
+
+  
+  pthread_mutex_lock(&gR_mutex);
+  action47();
+  pthread_cond_signal(&gR_cond);
+  pthread_mutex_unlock(&gR_mutex);
+  
+  pthread_mutex_lock(&gR_mutex);
+  DISPLAY("Waiting for %s\n","(gR > 1)");
+  while (gR <= 1) {
+    pthread_cond_wait(&gR_cond, &gR_mutex);
+  }
+  puff();
+  action48();
+  pthread_cond_signal(&gR_cond);
+  pthread_mutex_unlock(&gR_mutex);
+
+
+  pthread_exit(NULL);
+}
+
+
+void *Thread5(void *threadid) {
+  printf( "Thread5 Running\n" );
+
+  action51();
+
+  pthread_mutex_lock(&gN_mutex);
+  action52();
+  pthread_mutex_unlock(&gN_mutex);
+
+  pthread_mutex_lock(&gG_mutex);
+  action53();
+  pthread_mutex_unlock(&gG_mutex);
+
+  pthread_mutex_lock(&gG_mutex);
+  action54();
+  pthread_mutex_unlock(&gG_mutex);
+
+  pthread_mutex_lock(&gHK_mutex);
+  action55();
+  pthread_mutex_unlock(&gHK_mutex);
+
+  pthread_mutex_lock(&gQ_mutex);
+  action56();
+  pthread_mutex_unlock(&gQ_mutex);
+
+  pthread_mutex_lock(&gA_mutex);
+  action57();
+  pthread_cond_signal(&gA_cond);
+  pthread_mutex_unlock(&gA_mutex);
+
+  pthread_mutex_lock(&gA_mutex);
+  DISPLAY("Waiting for %s\n","(gA == 4)");
+  while (gA != 4) {
+    pthread_cond_wait(&gA_cond, &gA_mutex);
+  }
+  puff();
+  action58();
+  pthread_cond_signal(&gA_cond);
+  pthread_mutex_unlock(&gA_mutex);
+
+
+  pthread_exit(NULL);
+}
